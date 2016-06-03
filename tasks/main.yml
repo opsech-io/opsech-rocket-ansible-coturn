@@ -1,2 +1,59 @@
 ---
 # tasks file for coturn
+
+- include_vars: "{{ item }}"
+  with_first_found: "../vars/{{ ansible_os_family }}.yml"
+
+- name: Install coturn build dependencies
+  package: >
+      name={{ item }}
+      state=latest
+  with_items: "{{ buildep_packages + os_buildep_packages }}"
+  tags: buildep_packages
+
+- name: Ensure there is a builder user
+  user: >
+      name={{ build_username }}
+      state=present
+
+- name: Setup build directories (rpmbuild)
+  file: >
+      path={{ builder_directory }}/{{ item }}
+      state=directory
+      owner={{ builder_username }}
+  with_items:
+      - SOURCES
+      - SPECS
+      - RPMS
+
+- name: Clone coturn github repository
+  git: >
+      repo={{ coturn_repo_url }}
+      dest={{ coturn_repo_dest }}
+      version={{ coturn_version }}
+      accept_hostkey=yes
+      force=yes
+
+- name: Package coturn for spec sources
+  command: >
+      "tar zcf"
+      "{{ builder_directory }}/SOURCES/{{ coturn_pkg_name }}.tar.gz"
+      "{{ coturn_repo_dest }}"
+
+- name: Build coturn rpm packages
+  command: >
+      "rpmbuild -ta"
+      "{{ builder_directory }}/SOURCES/{{ coturn_pkg_name }}.tar.gz"
+
+- name: Install runtime packages
+  package: {{ item }}
+  with_items: {{ runtime_packages }}
+
+- name: Install built rpm
+  yum: >
+      name={{ item }}
+      state=present
+  with_fileglob: "{{ builder_directory }}/RPMS/*.rpm"
+
+
+# TODO: Config stuffs

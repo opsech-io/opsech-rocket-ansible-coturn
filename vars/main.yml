@@ -1,2 +1,20 @@
 ---
 # vars file for coturn
+
+coturn_version: 4.5.0.4
+coturn_pkg_name: turnserver-{{ coturn_version }}
+coturn_repo_url: https://github.com/coturn/coturn.git
+coturn_repo_dest: /tmp/{{ coturn_pkg_name }}
+build_username: builder
+build_directory: "{{ build_username }}/rpmbuild"
+
+
+buildep_packages:
+    - make
+    - gcc
+    - redhat-rpm-config
+    - rpm-build doxygen
+    - openssl-devel git
+    - wget
+   #- postgresql-devel
+    - hiredis-devel

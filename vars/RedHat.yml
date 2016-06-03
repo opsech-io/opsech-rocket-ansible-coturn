@@ -1,0 +1,15 @@
+---
+# RedHat/CentOS specific vars
+
+buildep_packages:
+    - libevent-devel
+    - mariadb-devel
+    - sqlite
+    - sqlite-devel
+    tag: buildep_packages
+
+runtime_packages:
+    - openssl
+    - telnet
+    - sqlite
+
